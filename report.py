@@ -17,14 +17,12 @@ class_dict = {
     9 : "Truck"
 }
 
-
 def load_pickle(experiment_name):
     with open('{}.pickle'.format(experiment_name), 'rb') as handle:
         experiment = pickle.load(handle)
         
     return experiment
-    
-    
+
 def visualize_preds(experiment):
     plt.clf()
     
@@ -77,6 +75,8 @@ def visualize_preds(experiment):
     plt.savefig("heatmaps.png")
     
     return heatmap_init, heatmap_last
+        
+    
     
 def statistics(experiment):
     stats = experiment.stats
@@ -89,8 +89,15 @@ def statistics(experiment):
     
     attack_success = freqs[1] / (len(stats) - freqs[0])
     
+    final_acc = freqs[2] / len(stats)
+    
+    print("Number of success: {}".format(freqs[1]))
+    print("Number of mispreds: {}".format(freqs[0]))
+    print("Number of fails: {}".format(freqs[2]))
+    
     print("Original Acc: {:.2f}".format(orig_acc))
     print("Attack Success Rate: {:.2f}".format(attack_success))
+    print("Accuracy After Attack: {:.3f}".format(final_acc))
     
     init_conf_success = experiment.init_conf[experiment.stats == 1]
     last_conf_success = experiment.last_conf[experiment.stats == 1]
@@ -112,16 +119,18 @@ def statistics(experiment):
     print("Average Last. Conf. Unsuccessful Attacks: {:.2f}".format(avg_last_conf_unsuccess_attacks))
     
     
-    
 def visualize_queries(experiment):
     plt.clf()
     queries = experiment.n_queries[experiment.stats == 1]
+    
+    print("Avg. number of queries: {:.1f}".format(np.mean(queries)))
+    print("Median of queries: {:.0f}".format(np.median(queries)))
     
     plt.hist(queries, bins=int(queries.max() / 10) )
     
     plt.title("Num. Queries")
     
-    plt.savefig("queries.png")    
+    plt.savefig("queries.png")
     
 def vis_noise(experiment):
     plt.clf()
@@ -130,7 +139,6 @@ def vis_noise(experiment):
 
     plt.imshow(success_noise * 150)
     plt.savefig("noise")
-    
     
 def vis_imgs(experiment):
     plt.clf()
@@ -171,5 +179,47 @@ def vis_imgs(experiment):
     
     f.set_tight_layout(True)
     plt.savefig("imgs.png", bbox_inches='tight')
-        
-        
+
+def compare_queries(experiment0, experiment1, experiment2):
+    plt.clf()
+    
+    queries0 = experiment0.n_queries[experiment0.stats == 1]
+    
+    queries1 = experiment1.n_queries[experiment1.stats == 1]
+
+    queries2 = experiment2.n_queries[experiment2.stats == 1]
+
+    f, axes = plt.subplots(3, 1, figsize=(16, 10))
+
+    axes[0].hist(queries0, bins=int(queries0.max() / 10) )
+    axes[1].hist(queries1, bins=int(queries1.max() / 10) )
+    axes[2].hist(queries2, bins=int(queries2.max() / 10) )
+    
+    #f.suptitle('Histogram of Queries', fontsize=16)
+    
+    axes[0].set_xlabel("Uniform Sampling")
+    axes[1].set_xlabel("Gaussian Sampling")
+    axes[2].set_xlabel("Saliency Sampling")
+    
+    plt.savefig("compare_queries.png")
+    
+def compare_noises(experiment0, experiment1, experiment2):
+    plt.clf()
+    
+    success_noise_0 = np.mean(experiment0.noise[experiment0.stats == 1], axis=0).transpose(1, 2, 0)
+    
+    success_noise_1 = np.mean(experiment1.noise[experiment1.stats == 1], axis=0).transpose(1, 2, 0)
+
+    success_noise_2 = np.mean(experiment2.noise[experiment2.stats == 1], axis=0).transpose(1, 2, 0)
+
+    f, axes = plt.subplots(1, 3, figsize=(16, 5))
+
+    axes[0].imshow(success_noise_0 * 150)
+    axes[1].imshow(success_noise_1 * 150)
+    axes[2].imshow(success_noise_2 * 150)
+    
+    axes[0].set_xlabel("Uniform Sampling")
+    axes[1].set_xlabel("Gaussian Sampling")
+    axes[2].set_xlabel("Saliency Sampling")
+    
+    plt.savefig("compare_noise.png")
