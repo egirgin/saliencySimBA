@@ -1,8 +1,9 @@
 # saliencySimBA
 Saliency Map Guided Scoring-Based Adversarial Black Box Attack
+
 Check-out preprint:
 [Saliency Map Guided Scoring-Based Adversarial Black Box Attack](https://github.com/egirgin/saliencySimBA/blob/main/cmpe597_Project_paper.pdf)
-
+---
  * run ```training.ipynb``` to create model weights
 
  * run ```attack.ipynb``` to apply SimBA attack. 
